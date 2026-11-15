@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AstroHealth Tracker</title>
+<meta name="description" content="ISS crew space weather and health risk console / ISS mürettebatı için uzay havası ve sağlık risk konsolu">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%2313203A'/%3E%3Crect x='5' y='17' width='10' height='6' fill='%23D9A441'/%3E%3Crect x='25' y='17' width='10' height='6' fill='%23D9A441'/%3E%3Crect x='16' y='13' width='8' height='14' rx='2' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="style.css?v=1.7">
+</head>
+<body>
+<a class="atla" href="#icerik" data-i18n="app.atla">İçeriğe geç</a>
+
+<div class="kabuk">
+  <!-- Yan menü -->
+  <nav class="ray" aria-label="Menü">
+    <div class="ray-marka">
+      <svg viewBox="0 0 40 40" aria-hidden="true" class="ray-logo"><rect x="3" y="16" width="12" height="8" rx="1"/><rect x="25" y="16" width="12" height="8" rx="1"/><rect x="15" y="19" width="10" height="2"/><rect x="16" y="12" width="8" height="16" rx="2" class="govde"/></svg>
+      <div><strong data-i18n="app.ad">AstroHealth Tracker</strong></div>
+    </div>
+    <ul class="ray-liste">
+      <li><a href="#genel" data-gorunum="genel"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span data-i18n="nav.genel"></span></a></li>
+      <li><a href="#yorunge" data-gorunum="yorunge"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/><circle cx="12" cy="12" r="3"/></svg><span data-i18n="nav.yorunge"></span></a></li>
+      <li><a href="#hava" data-gorunum="hava"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg><span data-i18n="nav.hava"></span></a></li>
+      <li><a href="#saglik" data-gorunum="saglik"><svg viewBox="0 0 24 24"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-3 4.5 4.5 0 0 1 8 3c0 6-8 11-8 11z"/></svg><span data-i18n="nav.saglik"></span></a></li>
+      <li><a href="#hastalik" data-gorunum="hastalik"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="3.5"/><path d="M3 21v-2.5a6 6 0 0 1 9.5-4.9"/><path d="M18 13.5v7M14.5 17h7"/></svg><span data-i18n="nav.hastalik"></span><span class="nav-rozet" id="vitRozet" hidden></span></a></li>
+      <li><a href="#eva" data-gorunum="eva"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5 21v-3a7 7 0 0 1 14 0v3"/></svg><span data-i18n="nav.eva"></span></a></li>
+      <li><a href="#arastirma" data-gorunum="arastirma"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg><span data-i18n="nav.arastirma"></span></a></li>
+      <li><a href="#yontem" data-gorunum="yontem"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h6"/></svg><span data-i18n="nav.yontem"></span></a></li>
+    </ul>
+    <div class="ray-gorev">
+      <label class="alan">
+        <span data-i18n="ctl.gorev">Görev günü</span>
+        <input type="number" id="gorevGunu" min="0" max="1000" step="1" value="120" data-i18n-title="ctl.gorevIpucu">
+      </label>
+      <input type="range" id="gorevKaydir" min="0" max="400" value="120" aria-label="Görev günü" data-i18n-aria="ctl.gorev">
+      <label class="anahtar" data-i18n-title="ctl.evaIpucu">
+        <input type="checkbox" id="evaModu"><span class="anahtar-iz" aria-hidden="true"></span><span data-i18n="ctl.eva">EVA modu</span>
+      </label>
+    </div>
+    <p class="surum" id="surumYazi"></p>
+  </nav>
+
+  <div class="ana">
+    <!-- Üst çubuk -->
+    <header class="ust">
+      <div class="ust-sol">
+        <h1 id="sayfaBaslik">Genel bakış</h1>
+        <span class="ust-alt" data-i18n="app.alt"></span>
+      </div>
+      <div class="ust-sag">
+        <span id="durumRozet" class="rozet" role="status">…</span>
+        <span id="guncelleme" class="guncelleme"></span>
+        <button id="senaryoBtn" class="dugme ikincil" type="button" data-i18n="ctl.senaryoAc"></button>
+        <div class="secici" role="group" data-i18n-aria="ctl.dil">
+          <button type="button" data-dil="tr" aria-pressed="true">TR</button><button type="button" data-dil="en" aria-pressed="false">EN</button>
+        </div>
+        <div class="secici" role="group" data-i18n-aria="ctl.saat">
+          <button type="button" data-saat="utc" aria-pressed="true" data-i18n="ctl.utc">UTC</button><button type="button" data-saat="yerel" aria-pressed="false" data-i18n="ctl.yerel">Yerel</button>
+        </div>
+        <button id="temaBtn" class="dugme ikon" type="button" data-i18n-title="ctl.tema" aria-label="Tema">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg>
+        </button>
+        <button id="raporBtn" class="dugme" type="button" data-i18n="ctl.rapor"></button>
+      </div>
+    </header>
+
+    <!-- Uyarı bandı -->
+    <section id="uyari" class="uyari" aria-live="polite">
+      <div class="uyari-seviye"><span id="uyariSeviye">—</span><strong id="uyariSkor">--</strong></div>
+      <p id="uyariMetin">…</p>
+    </section>
+    <!-- Yörünge şeridi (imza öğe) -->
+    <section class="serit-kap" aria-labelledby="seritBaslik">
+      <div class="serit-baslik"><h2 id="seritBaslik" data-i18n="serit.baslik"></h2><p data-i18n="serit.aciklama"></p></div>
+      <div class="serit" id="serit" role="img"></div>
+      <div class="serit-saatler" id="seritSaatler"></div>
+      <div class="serit-lejant" id="seritLejant"></div>
+    </section>
+
+    <main id="icerik" class="gorunumler">
+      <!-- GENEL BAKIŞ -->
+      <section class="gorunum" id="g-genel" data-gorunum="genel">
+        <div class="izgara genel-izgara">
+          <article class="panel risk-panel">
+            <h2 data-i18n="genel.riskBaslik"></h2>
+            <div class="okuma"><span class="okuma-sayi" id="riskSayi">--</span><span class="okuma-olcek">/100</span></div>
+            <div class="okuma-seviye" id="riskSeviye">—</div>
+            <div class="risk-cubuk"><div id="riskCubuk"></div><span class="esik" style="left:25%"></span><span class="esik" style="left:50%"></span><span class="esik" style="left:75%"></span></div>
+            <p class="ince" id="riskCarpan"></p>
+          </article>
+          <div class="vitaller" id="vitaller"></div>
+          <article class="panel mini-harita-panel">
+            <div id="miniHarita" class="harita mini"></div>
+            <dl class="anlar" id="anlar"></dl>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="genel.yapilacak"></h2>
+            <ul class="oneriler kisa" id="genelOneriler"></ul>
+            <a class="baglanti" href="#saglik" data-i18n="genel.tumOneriler"></a>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="genel.etkilenen"></h2>
+            <div class="organlar kisa" id="genelOrganlar"></div>
+            <a class="baglanti" href="#saglik" data-i18n="genel.tumSistemler"></a>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="hava.olaylar"></h2>
+            <div id="genelOlaylar"></div>
+            <a class="baglanti" href="#hava" data-i18n="genel.tumHava"></a>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="genel.gecmis"></h2>
+            <ol class="gecmis" id="gecmis"></ol>
+          </article>
+        </div>
+      </section>
+
+      <!-- YÖRÜNGE -->
+      <section class="gorunum" id="g-yorunge" data-gorunum="yorunge" hidden>
+        <div class="izgara yorunge-izgara">
+          <article class="panel harita-panel">
+            <h2 data-i18n="yorunge.baslik"></h2>
+            <div id="buyukHarita" class="harita buyuk"></div>
+            <div class="harita-lejant" id="haritaLejant"></div>
+          </article>
+          <aside class="panel">
+            <h2 data-i18n="yorunge.bilgi"></h2>
+            <dl class="bilgi-listesi" id="issBilgi"></dl>
+          </aside>
+          <article class="panel genis">
+            <h2 data-i18n="yorunge.bolgelerBaslik"></h2>
+            <div class="bolgeler" id="bolgeler"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- UZAY HAVASI -->
+      <section class="gorunum" id="g-hava" data-gorunum="hava" hidden>
+        <div class="izgara hava-izgara">
+          <div class="olcekler genis" id="olcekler"></div>
+          <article class="panel">
+            <h2 data-i18n="hava.kpBaslik"></h2>
+            <div class="grafik"><canvas id="kpGrafik"></canvas></div>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="hava.protonBaslik"></h2>
+            <div class="grafik"><canvas id="protonGrafik"></canvas></div>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="hava.cmeBaslik"></h2>
+            <div id="cmeTablo"></div>
+            <h3 data-i18n="hava.anlam"></h3>
+            <p id="havaAnlam" class="metin"></p>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="hava.olaylar"></h2>
+            <ul class="olaylar" id="olaylar"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- MÜRETTEBAT SAĞLIĞI -->
+      <section class="gorunum" id="g-saglik" data-gorunum="saglik" hidden>
+        <div class="izgara saglik-izgara">
+          <article class="panel">
+            <h2 data-i18n="saglik.dozBaslik"></h2>
+            <div class="sayilar" id="dozSayilar"></div>
+            <div class="ilerleme">
+              <div class="ilerleme-ust"><span data-i18n="saglik.kariyerBar"></span><strong id="kariyerYuzde">--</strong></div>
+              <div class="ilerleme-iz"><div id="kariyerCubuk"></div></div>
+              <p class="ince" id="speNot"></p>
+            </div>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="saglik.dnaBaslik"></h2>
+            <div id="dnaPanel"></div>
+            <h3 data-i18n="saglik.mgBaslik"></h3>
+            <div id="mgPanel"></div>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="saglik.organBaslik"></h2>
+            <p class="ince" data-i18n="saglik.organAlt"></p>
+            <div class="organlar" id="organlar"></div>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="saglik.takvimBaslik"></h2>
+            <p class="ince" data-i18n="saglik.takvimAlt"></p>
+            <div class="tablo-kap"><table class="takvim" id="takvim"></table></div>
+            <ul class="takvim-notlar" id="takvimNotlar"></ul>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="onlem.baslik"></h2>
+            <ul class="oneriler" id="oneriler"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- HASTALIK ÖYKÜSÜ OLAN MÜRETTEBAT -->
+      <section class="gorunum" id="g-hastalik" data-gorunum="hastalik" hidden>
+        <div class="izgara hastalik-izgara">
+          <article class="panel genis vit-alarm" id="vitAlarmlar" role="alert" hidden></article>
+          <article class="panel genis">
+            <div class="hst-ust">
+              <div>
+                <h2 data-i18n="hst.cevreBaslik"></h2>
+                <p class="ince" data-i18n="hst.cevreAlt"></p>
+              </div>
+              <p class="hst-durum ince" id="hstDurum" role="status"></p>
+            </div>
+            <div class="grafik"><canvas id="hstCevreGrafik"></canvas></div>
+            <div class="hst-lejant" id="hstLejant"></div>
+            <div class="hst-ozet">
+              <p id="hstEgilim"></p>
+              <p id="hstIss"></p>
+            </div>
+          </article>
+
+          <article class="panel genis">
+            <h2 data-i18n="hst.murettebat"></h2>
+            <p class="ince" data-i18n="hst.murettebatAlt"></p>
+            <div class="hst-kartlar" id="hstKartlar" role="group" data-i18n-aria="hst.murettebat"></div>
+          </article>
+
+          <article class="panel genis vit-panel ekran-yalniz" id="vitPanel">
+            <div class="hst-ust">
+              <div>
+                <h2 id="vitBaslik" data-i18n="hst.v.baslik"></h2>
+                <p class="ince" data-i18n="hst.v.alt"></p>
+              </div>
+              <p class="ince vit-durum" id="vitDurum" role="status"></p>
+            </div>
+            <div class="monitor" id="vitMonitor">
+              <div class="monitor-ust">
+                <span class="monitor-etiket" data-i18n="hst.v.ekg"></span>
+                <span class="monitor-ritim" id="monRitim"></span>
+              </div>
+              <canvas id="ekgTuval" height="150" aria-hidden="true"></canvas>
+              <div class="monitor-sayilar">
+                <p class="mon-n"><span class="mon-kalp" id="monKalp">♥</span><b id="monNabiz">—</b><small data-i18n="hst.v.dk">/dk</small></p>
+                <p class="mon-t"><b id="monTansiyon">—</b><small>mmHg</small></p>
+                <p class="mon-o"><span>SpO2</span><b id="monSpo2">—</b><small>%</small></p>
+                <p class="mon-r"><span id="monSolunumAd"></span><b id="monSolunum">—</b><small data-i18n="hst.v.dk">/dk</small></p>
+              </div>
+            </div>
+            <div class="vit-kutular" id="vitKutular"></div>
+            <div class="vit-alt">
+              <p class="ince" id="vitDinlenme"></p>
+              <p class="ince vit-kural" data-i18n="hst.v.kural"></p>
+            </div>
+            <div class="vit-kayit">
+              <h3 data-i18n="hst.v.sonKayit"></h3>
+              <ul id="vitKayitlar"></ul>
+              <p class="ince" id="vitDosya"></p>
+            </div>
+          </article>
+
+          <article class="panel hst-profil ekran-yalniz" id="hstProfil" aria-live="polite"></article>
+          <article class="panel hst-karar ekran-yalniz" id="hstKarar" aria-live="polite"></article>
+
+          <article class="panel genis ekran-yalniz">
+            <h2 id="hstGrafikBaslik" data-i18n="hst.kisiselBaslik"></h2>
+            <p class="ince" id="hstParcalar"></p>
+            <div class="grafik"><canvas id="hstKisiGrafik"></canvas></div>
+          </article>
+
+          <article class="panel ekran-yalniz">
+            <h2 data-i18n="hst.uyarilar"></h2>
+            <ul class="oneriler" id="hstUyarilar"></ul>
+          </article>
+          <article class="panel ekran-yalniz">
+            <div class="hst-yy">
+              <div><h2 class="hst-yap" data-i18n="hst.yap"></h2><ul class="hst-liste yap" id="hstYap"></ul></div>
+              <div><h2 class="hst-yapma" data-i18n="hst.yapma"></h2><ul class="hst-liste yapma" id="hstYapma"></ul></div>
+            </div>
+          </article>
+
+
+        </div>
+      </section>
+
+      <!-- EVA -->
+      <section class="gorunum" id="g-eva" data-gorunum="eva" hidden>
+        <div class="izgara eva-izgara">
+          <article class="panel genis">
+            <h2 data-i18n="eva.baslik"></h2>
+            <p class="ince" data-i18n="eva.alt"></p>
+            <div class="grafik yuksek"><canvas id="evaGrafik"></canvas></div>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="eva.pencereler"></h2>
+            <ol class="liste" id="evaPencereler"></ol>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="eva.saaBaslik"></h2>
+            <ul class="liste" id="saaGecisler"></ul>
+            <p class="ince" id="evaOzet"></p>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="eva.kurallar"></h2>
+            <ul class="kurallar">
+              <li data-i18n="eva.k1"></li><li data-i18n="eva.k2"></li><li data-i18n="eva.k3"></li><li data-i18n="eva.k4"></li><li data-i18n="eva.k5"></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- ARAŞTIRMA (OSDR) -->
+      <section class="gorunum" id="g-arastirma" data-gorunum="arastirma" hidden>
+        <div class="izgara arastirma-izgara">
+          <article class="panel genis">
+            <h2 data-i18n="osdr.baslik"></h2>
+            <p class="ince" data-i18n="osdr.alt"></p>
+            <form id="osdrForm" class="arama" role="search">
+              <label for="osdrQ" class="gizli-etiket" data-i18n="osdr.ara"></label>
+              <input id="osdrQ" type="search" maxlength="80" autocomplete="off" data-i18n-ph="osdr.araIpucu">
+              <button class="dugme" type="submit" data-i18n="osdr.araBtn"></button>
+            </form>
+            <div class="cipler" id="osdrKonular" role="tablist" data-i18n-aria="osdr.konular"></div>
+          </article>
+          <article class="panel">
+            <p class="ince" id="osdrOzet"></p>
+            <ul class="calismalar" id="osdrListe"></ul>
+            <p class="ince" data-i18n="osdr.dilNot"></p>
+          </article>
+          <article class="panel" id="osdrDetay" aria-live="polite"></article>
+          <article class="panel">
+            <h2 data-i18n="osdr.grafik"></h2>
+            <div class="grafik"><canvas id="osdrGrafik"></canvas></div>
+          </article>
+          <article class="panel">
+            <h2 data-i18n="osdr.organizmalar"></h2>
+            <div id="organizmalar"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- YÖNTEM -->
+      <section class="gorunum" id="g-yontem" data-gorunum="yontem" hidden>
+        <div class="izgara yontem-izgara">
+          <article class="panel genis">
+            <p class="giris" data-i18n="yontem.giris"></p>
+            <h2 data-i18n="yontem.akisBaslik"></h2>
+            <ol class="akis">
+              <li><strong data-i18n="yontem.akis1"></strong><span data-i18n="yontem.akis1d"></span></li>
+              <li><strong data-i18n="yontem.akis2"></strong><span data-i18n="yontem.akis2d"></span></li>
+              <li><strong data-i18n="yontem.akis3"></strong><span data-i18n="yontem.akis3d"></span></li>
+            </ol>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="yontem.formulBaslik"></h2>
+            <p class="formul">Risk = min(100, 10 × B × H × E)</p>
+            <p class="ince" data-i18n="yontem.formulAcik"></p>
+            <h3 data-i18n="yontem.sinirlarBaslik"></h3>
+            <ul class="maddeler"><li data-i18n="yontem.sinir1"></li><li data-i18n="yontem.sinir2"></li><li data-i18n="yontem.sinir3"></li><li data-i18n="yontem.sinir4"></li></ul>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="yontem.sabitBaslik"></h2>
+            <div class="tablo-kap"><table class="tablo" id="sabitler"></table></div>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="yontem.kaynaklarBaslik"></h2>
+            <div class="tablo-kap"><table class="tablo" id="kaynaklar"></table></div>
+          </article>
+          <article class="panel genis">
+            <h2 data-i18n="yontem.sozlukBaslik"></h2>
+            <dl class="sozluk" id="sozluk"></dl>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="alt">
+      <span>AstroHealth Tracker — NASA Space Apps Challenge</span>
+      <span>wheretheiss.at, NOAA SWPC, NASA DONKI, NASA OSDR</span>
+    </footer>
+  </div>
+</div>
+
+<!-- Kısa PDF rapor (yalnızca yazdırırken görünür) -->
+<section id="kisaRapor" class="kisa-rapor" aria-hidden="true"></section>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/chart.umd.js"></script>
+<script src="i18n.js?v=1.7"></script>
+<script src="app.js?v=1.7"></script>
+</body>
+</html>

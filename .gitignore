@@ -1,0 +1,4 @@
+# AstroHealth Tracker - Git'e eklenmeyecek dosyalar
+kayitlar/
+__pycache__/
+*.pyc

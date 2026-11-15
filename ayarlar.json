@@ -1,0 +1,6 @@
+{
+  "nasa_api_key": "DEMO_KEY",
+  "port": 8000,
+  "gorev_gunu": 120,
+  "saglik_kayit_dosyasi": "kayitlar/saglik_alarmlari.txt"
+}

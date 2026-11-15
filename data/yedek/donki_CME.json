@@ -1,0 +1,24 @@
+{
+ "_kaydedildi": "2026-11-14T08:00:00+00:00",
+ "_kaynak": "https://api.nasa.gov/DONKI/CME?startDate=2024-05-08&endDate=2024-05-08",
+ "_not": "Örnek yedek: 14 Kasım 2026'da API'lerden doğrulanan gerçek kayıtlar. Uygulama internete bağlandığında bu dosya otomatik olarak güncel veriyle değişir.",
+ "veri": [
+  {
+   "activityID": "2024-05-08T05:36:00-CME-001",
+   "startTime": "2024-05-08T05:36Z",
+   "cmeAnalyses": [
+    {
+     "isMostAccurate": true,
+     "speed": 870.0,
+     "type": "C",
+     "enlilList": [
+      {
+       "estimatedShockArrivalTime": "2024-05-10T12:14Z",
+       "isEarthGB": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
